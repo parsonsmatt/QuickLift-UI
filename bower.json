@@ -9,5 +9,9 @@
     "node_modules",
     "bower_components",
     "output"
-  ]
+  ],
+  "dependencies": {
+    "purescript-affjax": "~0.3.2",
+    "purescript-thermite": "~0.7.4"
+  }
 }

@@ -1,7 +1,5 @@
 module UI where
 
-import Debug.Trace
-
 import qualified Thermite as T
 import qualified Thermite.Html as T
 import qualified Thermite.Html.Elements as T
@@ -9,6 +7,8 @@ import qualified Thermite.Html.Attributes as A
 import qualified Thermite.Events as T
 import qualified Thermite.Action as T
 import qualified Thermite.Types as T
+
+import UI.AJAX
 
 data State = HelloWorld | Friends
 

@@ -1,5 +1,9 @@
 module UI where
 
+import Control.Monad.Eff
+import Data.Array
+import Debug.Trace
+import Data.Either
 import qualified Thermite as T
 import qualified Thermite.Html as T
 import qualified Thermite.Html.Elements as T
@@ -8,29 +12,50 @@ import qualified Thermite.Events as T
 import qualified Thermite.Action as T
 import qualified Thermite.Types as T
 
+import Control.Monad.Aff
 import UI.AJAX
 
-data State = HelloWorld | Friends
+type State = 
+           { page :: Page
+           , friends :: [User]
+           }
+
+data Page = HelloWorld | Friends
 
 data Action = Change
 
 initialState :: State
-initialState = HelloWorld
+initialState = { page: HelloWorld, friends: [] }
 
 performAction :: T.PerformAction _ State _ Action
-performAction _ Change = toggleState
+performAction _ Change = do
+    Right users <- listUsers
+    toggleState' users
+
+toggleState' users = T.modifyState \o ->
+                     case o.page of
+                          HelloWorld -> { page: Friends, friends: users }
+                          Friends -> { page: HelloWorld, friends: [] }
+putUsers :: forall a eff. (Show a) => a -> Eff (trace :: Trace | eff) Unit
+putUsers users = trace (show users) 
+
+initFriends :: [User]
+initFriends = []
 
 toggleState = T.modifyState \o -> case o of
-                                       HelloWorld -> Friends
-                                       Friends -> HelloWorld
+                                       { page: HelloWorld } -> { page: Friends, friends: o.friends }
+                                       { page: Friends } -> { page: HelloWorld, friends: [] }
 
 render :: T.Render _ State _ Action
-render ctx HelloWorld _ _ = T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Hello world!"]
-render ctx Friends _ _ = T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Omg frands"]
+render ctx s@({ page: HelloWorld }) _ _ = T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Hello world!"]
+render ctx s@({ page: Friends }) _ _ = 
+    T.div' 
+        [ T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Omg frands"]
+        , T.ul' (map (\u -> T.li' [T.text (show u)]) s.friends) 
+        ]
 
 spec :: T.Spec _ State _ Action
 spec = T.simpleSpec initialState performAction render
 
 main = do
-    let component = T.createClass spec
-    T.render component unit 
+    T.render (T.createClass spec) unit

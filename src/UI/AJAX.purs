@@ -52,3 +52,5 @@ instance isForeignUser :: IsForeign User where
                 <*> readProp "email" value
                 )
 
+instance showUser :: Show User where
+    show (User u) = "Name: " ++ u.name ++ ", Email: " ++ u.email

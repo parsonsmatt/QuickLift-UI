@@ -8585,6 +8585,15 @@ var Friends = (function () {
     Friends.value = new Friends();
     return Friends;
 })();
+var State = (function () {
+    function State(value0) {
+        this.value0 = value0;
+    };
+    State.create = function (value0) {
+        return new State(value0);
+    };
+    return State;
+})();
 var Change = (function () {
     function Change() {
 
@@ -8594,51 +8603,53 @@ var Change = (function () {
 })();
 var toggleState$prime = function (users) {
     return Thermite_Action.modifyState(function (o) {
-        if (o.page instanceof HelloWorld) {
-            return {
+        if (o.value0.page instanceof HelloWorld) {
+            return new State({
                 page: Friends.value, 
                 friends: users
-            };
+            });
         };
-        if (o.page instanceof Friends) {
-            return {
+        if (o.value0.page instanceof Friends) {
+            return new State({
                 page: HelloWorld.value, 
                 friends: [  ]
-            };
+            });
         };
         throw new Error("Failed pattern match");
     });
 };
-var toggleState = Thermite_Action.modifyState(function (o) {
-    if (o.page instanceof HelloWorld) {
-        return {
-            page: Friends.value, 
-            friends: o.friends
+var toggleState = Thermite_Action.modifyState(function (_1) {
+    return function (o) {
+        if (o.page instanceof HelloWorld) {
+            return new State({
+                page: Friends.value, 
+                friends: o.friends
+            });
         };
-    };
-    if (o.page instanceof Friends) {
-        return {
-            page: HelloWorld.value, 
-            friends: [  ]
+        if (o.page instanceof Friends) {
+            return new State({
+                page: HelloWorld.value, 
+                friends: [  ]
+            });
         };
+        throw new Error("Failed pattern match");
     };
-    throw new Error("Failed pattern match");
 });
 var render = function (ctx) {
-    return function (_5) {
-        return function (_6) {
-            return function (_7) {
-                if (_5.page instanceof HelloWorld) {
-                    return Thermite_Html_Elements.h1(Thermite_Events.onClick(ctx)(function (_1) {
+    return function (_6) {
+        return function (_7) {
+            return function (_8) {
+                if (_6.value0.page instanceof HelloWorld) {
+                    return Thermite_Html_Elements.h1(Thermite_Events.onClick(ctx)(function (_2) {
                         return Change.value;
                     }))([ Thermite_Html.text("Hello world!") ]);
                 };
-                if (_5.page instanceof Friends) {
-                    return Thermite_Html_Elements["div'"]([ Thermite_Html_Elements.h1(Thermite_Events.onClick(ctx)(function (_2) {
+                if (_6.value0.page instanceof Friends) {
+                    return Thermite_Html_Elements["div'"]([ Thermite_Html_Elements.h1(Thermite_Events.onClick(ctx)(function (_3) {
                         return Change.value;
                     }))([ Thermite_Html.text("Omg frands") ]), Thermite_Html_Elements["ul'"](Data_Array.map(function (u) {
                         return Thermite_Html_Elements["li'"]([ Thermite_Html.text(Prelude.show(UI_AJAX.showUser)(u)) ]);
-                    })(_5.friends)) ]);
+                    })(_6.value0.friends)) ]);
                 };
                 throw new Error("Failed pattern match");
             };
@@ -8650,8 +8661,8 @@ var putUsers = function (__dict_Show_0) {
         return Debug_Trace.trace(Prelude.show(__dict_Show_0)(users));
     };
 };
-var performAction = function (_3) {
-    return function (_4) {
+var performAction = function (_4) {
+    return function (_5) {
         return Prelude[">>="](Thermite_Action.bindAction)(UI_AJAX.listUsers)(function (_0) {
             if (_0 instanceof Data_Either.Right) {
                 return toggleState$prime(_0.value0);
@@ -8660,10 +8671,10 @@ var performAction = function (_3) {
         });
     };
 };
-var initialState = {
+var initialState = new State({
     page: HelloWorld.value, 
     friends: [  ]
-};
+});
 var spec = Thermite.simpleSpec(initialState)(performAction)(render);
 var main = Thermite.render(Thermite.createClass(spec))(Prelude.unit);
 var initFriends = [  ];
@@ -8671,6 +8682,7 @@ module.exports = {
     Change: Change, 
     HelloWorld: HelloWorld, 
     Friends: Friends, 
+    State: State, 
     main: main, 
     spec: spec, 
     render: render, 

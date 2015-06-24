@@ -15,7 +15,7 @@ import qualified Thermite.Types as T
 import Control.Monad.Aff
 import UI.AJAX
 
-type State = 
+data State = State
            { page :: Page
            , friends :: [User]
            }
@@ -25,7 +25,7 @@ data Page = HelloWorld | Friends
 data Action = Change
 
 initialState :: State
-initialState = { page: HelloWorld, friends: [] }
+initialState = State { page: HelloWorld, friends: [] }
 
 performAction :: T.PerformAction _ State _ Action
 performAction _ Change = do
@@ -33,25 +33,25 @@ performAction _ Change = do
     toggleState' users
 
 toggleState' users = T.modifyState \o ->
-                     case o.page of
-                          HelloWorld -> { page: Friends, friends: users }
-                          Friends -> { page: HelloWorld, friends: [] }
+                     case o of
+                          State { page: HelloWorld } -> State { page: Friends, friends: users }
+                          State { page: Friends } -> State { page: HelloWorld, friends: [] }
 putUsers :: forall a eff. (Show a) => a -> Eff (trace :: Trace | eff) Unit
 putUsers users = trace (show users) 
 
 initFriends :: [User]
 initFriends = []
 
-toggleState = T.modifyState \o -> case o of
-                                       { page: HelloWorld } -> { page: Friends, friends: o.friends }
-                                       { page: Friends } -> { page: HelloWorld, friends: [] }
+toggleState = T.modifyState \State o -> case o of
+                                       { page: HelloWorld, friends: f } -> State { page: Friends, friends: o.friends }
+                                       { page: Friends, friends: f } -> State { page: HelloWorld, friends: [] }
 
 render :: T.Render _ State _ Action
-render ctx s@({ page: HelloWorld }) _ _ = T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Hello world!"]
-render ctx s@({ page: Friends }) _ _ = 
+render ctx (State { page: HelloWorld, friends: _ }) _ _ = T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Hello world!"]
+render ctx (State { page: Friends, friends: f }) _ _ = 
     T.div' 
         [ T.h1 (T.onClick ctx (\_ -> Change)) [T.text "Omg frands"]
-        , T.ul' (map (\u -> T.li' [T.text (show u)]) s.friends) 
+        , T.ul' (map (\u -> T.li' [T.text (show u)]) f) 
         ]
 
 spec :: T.Spec _ State _ Action

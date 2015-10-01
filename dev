@@ -1,3 +1,0 @@
-#!/bin/bash
-
-pulp -w browserify --to assets/js/Main.js

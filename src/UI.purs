@@ -15,9 +15,9 @@ import qualified Thermite.Types as T
 import Control.Monad.Aff
 import UI.AJAX
 
-data State = State
+type State =
            { page :: Page
-           , friends :: [User]
+           , friends :: Array User
            }
 
 data Page = HelloWorld | Friends
@@ -36,10 +36,11 @@ toggleState' users = T.modifyState \o ->
                      case o of
                           State { page: HelloWorld } -> State { page: Friends, friends: users }
                           State { page: Friends } -> State { page: HelloWorld, friends: [] }
+
 putUsers :: forall a eff. (Show a) => a -> Eff (trace :: Trace | eff) Unit
 putUsers users = trace (show users) 
 
-initFriends :: [User]
+initFriends :: Array User
 initFriends = []
 
 toggleState = T.modifyState \State o -> case o of

@@ -11,7 +11,7 @@
     "output"
   ],
   "dependencies": {
-    "purescript-affjax": "~0.3.2",
-    "purescript-thermite": "~0.7.4"
+    "purescript-thermite": "~0.10.1",
+    "purescript-aff": "~0.13.0"
   }
 }

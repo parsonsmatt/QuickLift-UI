@@ -37,7 +37,7 @@ ajax aff = T.async \k ->
       StatusCode n | n >= fromNumber 200 && n < fromNumber 300 -> return r.response
       _ -> throwError (error "Bad status code")
 
-listUsers :: forall eff. AjaxAction eff [User]
+listUsers :: forall eff. AjaxAction eff (Array User) 
 listUsers = ajax $ get "/users/"
 
 newtype User = User
